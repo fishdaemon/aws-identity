@@ -28,7 +28,7 @@ usage()
      echo "AWS identity switch"
      echo "usage: aws <account> [shell]"
      echo ""
-     echo "<account> is a directory in $AWS_DIR containing EC2 certs and an AWS credentials file."
+     echo "<account> is a directory in $AWS_DIR containing EC2 certs and / or an AWS credentials file."
 	 echo "[shell] (sh or csh) will return commands suitable to eval to alter your shell environment."
 	 echo ""
 	 echo "Suggested usage: aws() {eval \`aws-identity \$1 sh\` && aws-identity \$1}"
@@ -105,11 +105,17 @@ then
 	then
 
 		# Test the file for the two necessary lines.
-		if grep -Fq AWSAccessKeyId $AWS_DIR/$1/$ACCESS_FILE_NAME && grep -Fq AWSSecretKey $AWS_DIR/$1/$ACCESS_FILE_NAME
+		ACCESS_KEY=`grep -Fq AWSAccessKeyId $AWS_DIR/$1/$ACCESS_FILE_NAME`
+		SECRET_KEY=`grep -Fq AWSSecretKey $AWS_DIR/$1/$ACCESS_FILE_NAME`
+		echo $ACCESS_KEY
+		echo $SECRET_KEY
+		if [ ! -z $ACCESS_KEY ] && [ ! -z $SECRET_KEY ]
 		then
 			AWS=true
 			if [ ! -z $2 ]; then
 				echo "$COMMAND AWS_CREDENTIAL_FILE${SEPARATOR}${AWS_DIR}/$1/$ACCESS_FILE_NAME"
+				echo "$COMMAND AWS_ACCESS_KEY${SEPARATOR}$ACCESS_KEY"
+				echo "$COMMAND AWS_SECRET_KEY${SEPARATOR}$SECRET_KEY"
 			fi
 
 		# Malformed credential file. Unset if we're in a shell mode.
